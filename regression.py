@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from estimate_price import estimate_price
-from sklearn.preprocessing import StandardScaler
 from plotting import print_graph
 import sys
 """
@@ -21,18 +20,17 @@ The algorithm works as follows:
 9. Check if the predicted values are close enough to the actual values.
 """
 
-def linear_regression(x:np.array, y:np.array,accuracy=0.01, max_iter=1000, learning_rate=1e-7):
-    if x.size != y.size:
+def linear_regression(X:np.array, y:np.array,accuracy=0.01, max_iter=10000, learning_rate=0.01):
+    if X.shape[0] != y.size:
         raise ValueError("x and y must have the same size")
     m = y.size
     y = y.reshape(m, 1)
-    if x.ndim == 1:
-        x = x.reshape(m, 1)
+    if X.ndim == 1:
+        X = X.reshape(m, 1)
 
     # Scale X to improve convergence
-    scaler = StandardScaler()
-    x = scaler.fit_transform(x)
-    print(x)
+    print ((X.mean(axis = 0)/ X.std(axis = 0)).sum())
+    x = (X - np.mean(X, axis = 0)) / (np.std(X, axis = 0))
     x = np.concat(( np.ones((m, 1)) ,x), axis = 1)
     theta = np.zeros((x.shape[1],1))
     y_predicted = np.zeros(y.shape)
@@ -46,15 +44,19 @@ def linear_regression(x:np.array, y:np.array,accuracy=0.01, max_iter=1000, learn
         #    y_predicted [i] = estimate_price(mileage, theta[0,0], theta[1,0])
         gradient = np.dot(x.T, (y_predicted - y)) / m
         theta = theta - gradient * learning_rate
-        print (theta)
         loss = np.pow(y_predicted - y, 2).sum() / m
         if abs(loss- prev_los) < accuracy:
             break
         prev_los = loss
-        #print_graph(x[:,1], y, y_predicted)
+    print(f"Loss: {loss}")
+    print(f"theta: {theta}")
+    print(f"factores1: {theta[1:,0] / np.std(X, axis = 0)}")
+    print(f"factores0: {theta[0,0] - np.mean(X, axis = 0) / np.std(X, axis = 0)}")
+    theta = np.concat([theta[0, ] - np.dot(theta[1:,0], np.mean(X, axis = 0) / np.std(X, axis = 0)), theta[1:,0] / np.std(X, axis = 0)])
+    print(f"theta: {theta }")
+    #print_graph(x[:,1], y, y_predicted)
         #input("Press Enter to continue...")
     return theta
-
 if len(sys.argv) != 2:
     print("You must provide a csv file as an argument")
     sys.exit()
@@ -64,7 +66,7 @@ else:
     except:
         print("The file provided does not exist or is not a csv file")
         sys.exit()
-    x = np.array(data['km'])
+    x = np.array([data['km'], np.power(data['km'], 2)]).T
     y = np.array(data['price'])
     theta = linear_regression(x, y)
     print(f"theta0: {theta[0]} theta1: {theta[1]}")
@@ -72,6 +74,6 @@ else:
     if x.ndim == 1:
         x = x.reshape(m, 1)
     x = np.concat(( np.ones(m).reshape(m,1) ,x), axis = 1)
+    y_predicted = np.dot(x, theta).reshape(m, 1)
     y = y.reshape(m, 1)
-    y_predicted = np.dot(x, theta)
-    print_graph(x[:,1], y, y_predicted)
+    print_graph(x[:,1:], y, y_predicted)
