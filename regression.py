@@ -27,6 +27,9 @@ def linear_regression(X:np.array, y:np.array,accuracy=0.1, max_iter=10000, learn
     # Calculate the vector to scale theta0
     array_losses = np.empty(10)
     factor_theta0 = np.concat((np.ones([1]),-(X.mean(axis = 0)/ X.std(axis = 0))), axis = 0)
+
+    # Scale X to improve convergence
+
     x = (X - np.mean(X, axis = 0)) / (np.std(X, axis = 0))
     x = np.concat(( np.ones((m, 1)) ,x), axis = 1)
     theta = np.zeros((x.shape[1],1))
