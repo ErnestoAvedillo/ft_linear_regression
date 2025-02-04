@@ -41,5 +41,6 @@ else:
     #x = np.concat(( np.ones(m).reshape(m,1) ,x), axis = 1)
     #y_predicted = np.dot(x, theta).reshape(m, 1)
     #y = y.reshape(m, 1)
+    print (f"The loss is {loss[-1]}")
     print_graph(x[:,0], y, theta)
     print_loss(loss)

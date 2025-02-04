@@ -17,7 +17,7 @@ The algorithm works as follows:
 9. Check if the predicted values are close enough to the actual values.
 """
 
-def linear_regression(X:np.array, y:np.array,accuracy=0.1, max_iter=10000, learning_rate=0.01):
+def linear_regression(X:np.array, y:np.array,accuracy=0.1, max_iter=1000, learning_rate=0.01):
     if X.shape[0] != y.size:
         raise ValueError("x and y must have the same size")
     m = y.size
